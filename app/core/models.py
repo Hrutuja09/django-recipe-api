@@ -38,7 +38,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
     USERNAME_FIELD = 'email'
-    
+
 class Recipe(models.Model):
     """Recipe object"""
     user = models.ForeignKey(
@@ -50,6 +50,7 @@ class Recipe(models.Model):
     time_minutes=models.IntegerField()
     price=models.DecimalField(max_digits=5,decimal_places=2)
     link=models.CharField(max_length=255,blank=True)
+    tags = models.ManyToManyField('Tag')
 
     def __str__(self):
         return self.title
