@@ -5,7 +5,7 @@ from rest_framework import viewsets , mixins
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from core.models import Recipe ,Tag
+from core.models import Recipe ,Tag, Ingredient
 from recipe import serializers
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -30,15 +30,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Create a new recipe"""
         serializer.save(user=self.request.user)
 
-class TagViewSet(mixins.DestroyModelMixin,mixins.UpdateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
-    """MAnage tags in the database"""
-    serializer_class = serializers.TagSerializer
-    queryset = Tag.objects.all()
+class BaseRecipeAttrViewSet(mixins.DestroyModelMixin,mixins.UpdateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+    """Base view set for recipe Attributes"""
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Retrieve tags for authenticated users"""
+        """Retrieve Ingredients for authenticated users"""
         return self.queryset.filter(user=self.request.user).order_by('-name')
 
+class TagViewSet(BaseRecipeAttrViewSet):
+    """MAnage tags in the database"""
+    serializer_class = serializers.TagSerializer
+    queryset = Tag.objects.all()
 
+class IngredientViewSet(BaseRecipeAttrViewSet):
+    """Manage Ingredients in the database"""
+    # UpdateModelMixins automatically adds the ingredient-detail to the url and hence we need not to add the ingredient-detail to the url.py. Thats the beauty of the mixins. It gets handled by the View.
+    serializer_class = serializers.IngredientSerializer
+    queryset = Ingredient.objects.all()
